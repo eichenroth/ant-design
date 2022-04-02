@@ -1,9 +1,9 @@
 import * as React from 'react';
 import classNames from 'classnames';
+import toArray from 'rc-util/lib/Children/toArray';
 import omit from 'rc-util/lib/omit';
 import RcTable, { Summary } from 'rc-table';
 import { TableProps as RcTableProps, INTERNAL_HOOKS } from 'rc-table/lib/Table';
-import { convertChildrenToColumns } from 'rc-table/lib/hooks/useColumns';
 import Spin, { SpinProps } from '../spin';
 import Pagination from '../pagination';
 import { TooltipProps } from '../tooltip';
@@ -48,6 +48,28 @@ import useBreakpoint from '../grid/hooks/useBreakpoint';
 export { ColumnsType, TablePaginationConfig };
 
 const EMPTY_LIST: any[] = [];
+
+function convertChildrenToColumns<RecordType>(children: React.ReactNode): ColumnsType<RecordType> {
+  return toArray(children)
+    .filter(node => React.isValidElement(node))
+    .map(node => {
+      if (node.type === Column.EXPAND_COLUMN) return RcTable.EXPAND_COLUMN;
+
+      const { key, props } = node;
+
+      const { children: nodeChildren, ...restProps } = props;
+      const column = {
+        key,
+        ...restProps,
+      };
+
+      if (nodeChildren) {
+        column.children = convertChildrenToColumns(nodeChildren);
+      }
+
+      return column;
+    });
+}
 
 interface ChangeEventInfo<RecordType> {
   pagination: {

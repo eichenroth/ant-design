@@ -11,4 +11,10 @@ function Column<RecordType>(_: ColumnProps<RecordType>) {
   return null;
 }
 
+function EXPAND_COLUMN() {
+  return null;
+}
+
+Column.EXPAND_COLUMN = EXPAND_COLUMN;
+
 export default Column;
